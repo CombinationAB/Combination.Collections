@@ -3,9 +3,9 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Entity.Ranking
+namespace Combination.Collections
 {
-    internal sealed class LruCache<TKey, TValue>
+    public sealed class LruCache<TKey, TValue>
         where TKey : notnull
     {
         private readonly LinkedList<KeyValuePair<TKey, TValue>> list = new();
@@ -35,12 +35,15 @@ namespace Entity.Ranking
             else
             {
                 // Only lock if we have to modified the LRU
-                if (node != list.Last)
+                if (node != list.First)
                 {
                     lock (list)
                     {
-                        list.Remove(node);
-                        list.AddLast(node);
+                        if (node.List != null)
+                        {
+                            list.Remove(node);
+                            list.AddFirst(node);
+                        }
                     }
                 }
 
@@ -56,9 +59,9 @@ namespace Entity.Ranking
             {
                 lock (list)
                 {
-                    if (count > capacity)
+                    if (++count > capacity)
                     {
-                        var f = list.First;
+                        var f = list.Last;
                         if (f != null)
                         {
                             list.Remove(f);
@@ -66,12 +69,8 @@ namespace Entity.Ranking
                             (f.Value.Value as IDisposable)?.Dispose();
                         }
                     }
-                    else
-                    {
-                        ++count;
-                    }
 
-                    list.AddLast(node);
+                    list.AddFirst(node);
                 }
 
                 return true;
@@ -89,8 +88,11 @@ namespace Entity.Ranking
 
             lock (list)
             {
-                list.Remove(value);
-                --count;
+                if (value.List != null)
+                {
+                    list.Remove(value);
+                    --count;
+                }
             }
 
             (value.Value.Value as IDisposable)?.Dispose();
