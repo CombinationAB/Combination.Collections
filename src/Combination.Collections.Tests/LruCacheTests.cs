@@ -98,5 +98,24 @@ namespace Combination.Collections.Tests
 
             Assert.False(myDisposable.IsDisposed);
         }
+
+        [Fact]
+        public void Will_Not_Always_Push_Out_After_Exceeding_Capacity()
+        {
+            LruCache<string, int> cache = new(2);
+            
+            cache.TryAdd("a", 1);
+            cache.TryAdd("b", 2);
+            cache.TryAdd("c", 3);
+
+            // State should be [b, c] now
+            cache.TryRemove("b");
+
+            // State should be [c] now 
+            cache.TryAdd("d", 4);
+
+            // State should be [c, d] now and "c" should not have been removed by "d"
+            Assert.True(cache.TryGetValue("c", out var _));
+        }
     }
 }

@@ -64,6 +64,7 @@ namespace Combination.Collections
                 {
                     if (++count > capacity)
                     {
+                        count--;
                         var f = list.Last;
                         if (f != null)
                         {
@@ -72,8 +73,7 @@ namespace Combination.Collections
                             if (disposeOnRemove)
                             {
                                 (f.Value.Value as IDisposable)?.Dispose();
-                            }
-                                
+                            }        
                         }
                     }
 
