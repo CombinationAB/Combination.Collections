@@ -12,16 +12,19 @@ namespace Combination.Collections
         private readonly ConcurrentDictionary<TKey, LinkedListNode<KeyValuePair<TKey, TValue>>> dictionary;
         private readonly int capacity;
         private int count;
+        private readonly bool disposeOnRemove;
 
-        public LruCache(int capacity)
+        public LruCache(int capacity, bool disposeOnRemove = true)
         {
             this.capacity = capacity;
+            this.disposeOnRemove = disposeOnRemove;
             dictionary = new ConcurrentDictionary<TKey, LinkedListNode<KeyValuePair<TKey, TValue>>>();
         }
 
-        public LruCache(int capacity, IEqualityComparer<TKey> comparer)
+        public LruCache(int capacity, IEqualityComparer<TKey> comparer, bool disposeOnRemove = true)
         {
             this.capacity = capacity;
+            this.disposeOnRemove = disposeOnRemove;
             dictionary = new ConcurrentDictionary<TKey, LinkedListNode<KeyValuePair<TKey, TValue>>>(comparer);
         }
 
@@ -66,7 +69,11 @@ namespace Combination.Collections
                         {
                             list.Remove(f);
                             dictionary.TryRemove(f.Value.Key, out _);
-                            (f.Value.Value as IDisposable)?.Dispose();
+                            if (disposeOnRemove)
+                            {
+                                (f.Value.Value as IDisposable)?.Dispose();
+                            }
+                                
                         }
                     }
 
@@ -95,7 +102,10 @@ namespace Combination.Collections
                 }
             }
 
-            (value.Value.Value as IDisposable)?.Dispose();
+            if (disposeOnRemove)
+            {
+                (value.Value.Value as IDisposable)?.Dispose();
+            }
 
             return true;
         }

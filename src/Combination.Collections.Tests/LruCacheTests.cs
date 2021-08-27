@@ -80,5 +80,23 @@ namespace Combination.Collections.Tests
             Assert.True(cache.TryGetValue("testA", out var _));
             Assert.True(cache.TryGetValue("testC", out var _));
         }
+
+        [Fact]
+        public void Only_Dispose_Removed_Objects_When_Configured_To()
+        {
+            LruCache<string, Disposable> cache = new(2);
+            var myDisposable = new Disposable();
+            cache.TryAdd("test", myDisposable);
+            cache.TryRemove("test");
+
+            Assert.True(myDisposable.IsDisposed);
+
+            cache = new(2, false);
+            myDisposable = new Disposable();
+            cache.TryAdd("test", myDisposable);
+            cache.TryRemove("test");
+
+            Assert.False(myDisposable.IsDisposed);
+        }
     }
 }
