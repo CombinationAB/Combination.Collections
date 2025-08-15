@@ -11,8 +11,9 @@ namespace Combination.Collections
         private readonly LinkedList<KeyValuePair<TKey, TValue>> list = new();
         private readonly ConcurrentDictionary<TKey, LinkedListNode<KeyValuePair<TKey, TValue>>> dictionary;
         private readonly int capacity;
-        private int count;
         private readonly bool disposeOnRemove;
+
+        public int Count { get; private set; }
 
         public LruCache(int capacity, bool disposeOnRemove = true)
         {
@@ -62,9 +63,9 @@ namespace Combination.Collections
             {
                 lock (list)
                 {
-                    if (++count > capacity)
+                    if (++Count > capacity)
                     {
-                        count--;
+                        Count--;
                         var f = list.Last;
                         if (f != null)
                         {
@@ -98,7 +99,7 @@ namespace Combination.Collections
                 if (value.List != null)
                 {
                     list.Remove(value);
-                    --count;
+                    --Count;
                 }
             }
 
