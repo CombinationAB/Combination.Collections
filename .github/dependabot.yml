@@ -1,11 +1,31 @@
-# To get started with Dependabot version updates, you'll need to specify which
-# package ecosystems to update and where the package manifests are located.
-# Please see the documentation for all configuration options:
-# https://help.github.com/github/administering-a-repository/configuration-options-for-dependency-updates
-
 version: 2
+registries:
+  github:
+    type: nuget-feed
+    url: https://nuget.pkg.github.com/Sports-Global/index.json
+    username: dependabot
+    password: ${{secrets.GH_PACKAGES_TOKEN}}
+  azdevops:
+    type: nuget-feed
+    url: https://pkgs.dev.azure.com/Derivco/_packaging/SportsBookLib/nuget/v3/index.json
+    username: dependabot
+    password: ${{secrets.DERIVCO_DEVOPS_PAT}}
 updates:
   - package-ecosystem: "nuget"
-    directory: "/" # Location of package manifests
+    directory: "/"
+    registries: "*"
+    schedule:
+      interval: "daily"
+    groups:
+      nuget-internal:
+        patterns:
+          - "Sports.*"
+      nuget-external:
+        patterns:
+          - "*"
+        exclude-patterns:
+          - "Sports.*"
+  - package-ecosystem: "docker"
+    directory: "/docker"
     schedule:
       interval: "daily"

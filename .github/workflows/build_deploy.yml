@@ -1,0 +1,18 @@
+name: Build and deploy
+on:
+  push:
+    branches:
+      - master
+      - feature/*
+      - hotfix/*
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    uses: Sports-Global/Infrastructure-Commons-Workflows/.github/workflows/build-common.yml@v1
+    secrets: inherit
+    with:
+      create-release: true
